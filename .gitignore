@@ -67,3 +67,7 @@ temp/
 # Backup files
 *.bak
 *.backup
+
+# Docker
+.docker-data/
+docker-compose.override.yml
