@@ -361,7 +361,7 @@ export const InvoiceDownloadLink: React.FC<{
       fileName={fileName || defaultFileName}
       style={{ textDecoration: 'none' }}
     >
-      {({ loading }) => (loading ? 'Loading document...' : children)}
+      {children}
     </PDFDownloadLink>
   );
 };

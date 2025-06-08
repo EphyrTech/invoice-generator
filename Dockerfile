@@ -1,58 +1,62 @@
-FROM node:18-alpine AS base
+###############################################################################
+# A) Use Node 18 (Alpine) as a single‐stage build image
+###############################################################################
+FROM node:18-alpine
 
-# Install dependencies only when needed
-FROM base AS deps
+# Set working directory
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# ─────────────────────────────────────────────────────────────────────────────
+# 1) Enable Corepack & install dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+# Turn on Corepack so that "packageManager": "yarn@4.8.1" is honored
+RUN corepack enable
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy exactly the files you need for install
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
+
+# Activate Yarn 4.8.1 and install all dependencies
+RUN corepack prepare yarn@4.8.1 --activate \
+ && yarn install --frozen-lockfile
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2) Copy source code & build for production
+# ─────────────────────────────────────────────────────────────────────────────
+# Now that node_modules is in place, copy the rest of your app
 COPY . .
 
-# Set environment variables
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Set environment variables for a production build
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
 
-# Build the application
+# Run Next.js build
 RUN yarn build
 
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
+# ─────────────────────────────────────────────────────────────────────────────
+# 3) Create a non-root user and prepare .next folder
+# ─────────────────────────────────────────────────────────────────────────────
+# Create “nextjs” group & user with UID 1001, GID 1001
+RUN addgroup --system --gid 1001 nodejs \
+ && adduser --system --uid 1001 nextjs
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Copy static assets for standalone mode
+RUN cp -r .next/static .next/standalone/.next/ \
+ && if [ -d "public" ]; then cp -r public .next/standalone/; fi
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Set ownership of the .next folder (created by yarn build)
+RUN chown -R nextjs:nodejs .next
 
-COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
+# ─────────────────────────────────────────────────────────────────────────────
+# 4) Expose port & switch to non-root, then run the standalone server
+# ─────────────────────────────────────────────────────────────────────────────
+# Because Next’s standalone mode outputs a server.js at /.next/standalone
+# (and static assets under .next/static), we can simply run that.
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000 \
+    HOSTNAME="0.0.0.0"
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+CMD ["node", ".next/standalone/server.js"]

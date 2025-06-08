@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect, FormEvent, ChangeEvent } from 'react';
+import { useState, useEffect, FormEvent, ChangeEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 type BusinessProfile = {
@@ -42,7 +42,7 @@ type Template = {
   }[];
 };
 
-export default function NewInvoice() {
+function NewInvoiceContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get('templateId');
@@ -160,7 +160,7 @@ export default function NewInvoice() {
           ...formData,
           items: items.filter(item => item.description.trim() !== ''),
           saveAsTemplate,
-          action: e.currentTarget.action?.value || 'final'
+          action: 'final'
         }),
       });
 
@@ -647,5 +647,15 @@ export default function NewInvoice() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewInvoice() {
+  return (
+    <Suspense fallback={<div className="bg-white shadow rounded-lg p-6 text-center py-10">
+      <p className="text-gray-500">Loading...</p>
+    </div>}>
+      <NewInvoiceContent />
+    </Suspense>
   );
 }

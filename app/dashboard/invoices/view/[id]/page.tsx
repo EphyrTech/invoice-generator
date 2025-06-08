@@ -152,7 +152,7 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
   const pdfInvoiceData = {
     invoiceNumber: invoice.invoice_number,
     issueDate: invoice.issue_date,
-    dueDate: invoice.due_date,
+    dueDate: invoice.due_date || undefined,
     // status removed as requested
     currency: invoice.currency,
     subtotal: invoice.subtotal,
@@ -161,8 +161,8 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
     discountRate: invoice.discount_rate,
     discountAmount: invoice.discount_amount,
     total: invoice.total,
-    notes: invoice.notes,
-    terms: invoice.terms,
+    notes: invoice.notes || undefined,
+    terms: invoice.terms || undefined,
     businessProfile: {
       name: invoice.businessProfile?.name || '',
       email: invoice.businessProfile?.email || '',
