@@ -9,12 +9,20 @@ services:
     ports:
       - "${PORT:-3000}:3000"
     environment:
+      # Production environment
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - PORT=3000
       - HOSTNAME=0.0.0.0
+
+      # Database connection (connects to db service)
+      - DATABASE_URL=postgresql://invoice_user:invoice_secure_password_2024@db:5432/invoice_db
+
+      # NextAuth configuration with defaults
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-invoice-nextauth-secret-change-in-production-2024}
+
+      # Disable telemetry
+      - NEXT_TELEMETRY_DISABLED=1
     depends_on:
       db:
         condition: service_healthy
@@ -25,7 +33,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
     labels:
       - "coolify.managed=true"
 
@@ -33,17 +41,19 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB:-invoice_db}
+      # Database configuration with secure defaults
+      - POSTGRES_USER=invoice_user
+      - POSTGRES_PASSWORD=invoice_secure_password_2024
+      - POSTGRES_DB=invoice_db
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups:rw
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-invoice_db}"]
+      test: ["CMD-SHELL", "pg_isready -U invoice_user -d invoice_db"]
       interval: 30s
       timeout: 10s
       retries: 5
