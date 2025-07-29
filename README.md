@@ -1,86 +1,77 @@
-# Invoice Generator
+# Invoice PDF Generator
 
-A modern invoice management system built with Next.js, PostgreSQL, and React. This application allows you to create, manage, and download invoices as PDFs.
+A modern, professional invoice management system built with Next.js, PostgreSQL, and React. Create, manage, and download beautiful PDF invoices with ease.
 
-## Features
+## 📚 Documentation
 
-- Create and manage business profiles
-- Create and manage clients
-- Create invoice templates for reuse
-- Generate invoices from templates
-- Download invoices as PDFs
-- Track invoice status
-- Support for multiple currencies
-- Support for taxes and discounts
+- **[👨‍💻 Developer Guide](README-DEV.md)** - Technical documentation, architecture, and development setup
+- **[👤 User Guide](README-USER.md)** - How to use the application, features, and workflows
+- **[🚀 Deployment Guide](COOLIFY_DEPLOYMENT.md)** - Production deployment with Coolify
 
-## Getting Started
+## ✨ Key Features
 
-### Prerequisites
+- **📊 Dashboard** - Overview of invoicing activity and statistics
+- **🏢 Business Profiles** - Manage multiple company profiles
+- **👥 Client Management** - Organize customer information
+- **📄 Professional Invoices** - Create beautiful, customizable invoices
+- **📋 Templates** - Save time with reusable invoice templates
+- **💾 PDF Generation** - Download invoices as professional PDFs
+- **💰 Multi-Currency** - Support for different currencies
+- **🧮 Tax & Discounts** - Automatic calculations and tax handling
 
-- [Node.js](https://nodejs.org/) (v18 or later)
-- [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) (for containerized deployment)
+## 🚀 Quick Start
 
-### Development Setup
+### For Users
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/invoice-generator.git
-   cd invoice-generator
-   ```
+If you just want to use the application, see the **[User Guide](README-USER.md)** for complete instructions.
 
-2. Install dependencies:
-   ```bash
-   yarn install
-   ```
+### For Developers
 
-3. Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+If you want to set up the development environment or contribute to the project, see the **[Developer Guide](README-DEV.md)**.
 
-4. Start the development server:
-   ```bash
-   yarn dev
-   ```
+### Quick Development Setup
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+```bash
+# Clone and setup
+git clone <repository-url>
+cd invoice-pdf
+npm install
 
-### Docker Deployment
+# Start database
+docker-compose up -d db
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/invoice-generator.git
-   cd invoice-generator
-   ```
+# Initialize with sample data
+npm run db:init
 
-2. Create a `.env` file based on `.env.example`:
-   ```bash
-   cp .env.example .env
-   ```
+# Start development server
+npm run dev
+```
 
-3. Build and start the Docker containers:
-   ```bash
-   docker-compose up -d
-   ```
+## 🛠️ Technology Stack
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, PostgreSQL, Drizzle ORM
+- **PDF Generation**: React PDF
+- **Infrastructure**: Docker, Docker Compose
 
-5. Access PgAdmin at [http://localhost:8080](http://localhost:8080) using the credentials in your `.env` file.
+## 📖 Documentation
 
-## Database Schema
+For detailed information, please refer to:
 
-The application uses PostgreSQL with the following main tables:
+- **[Developer Guide](README-DEV.md)** - Complete technical documentation
+- **[User Guide](README-USER.md)** - How to use the application
+- **[Deployment Guide](COOLIFY_DEPLOYMENT.md)** - Production deployment
 
-- `business_profiles`: Your company information
-- `clients`: Client information
-- `invoice_templates`: Reusable invoice templates
-- `invoices`: Generated invoices
-- `invoice_items`: Line items for invoices
+## 🤝 Contributing
 
-## Environment Variables
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-See `.env.example` for a list of required environment variables.
+See the [Developer Guide](README-DEV.md) for detailed contribution guidelines.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

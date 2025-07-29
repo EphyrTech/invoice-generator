@@ -1,6 +1,88 @@
+'use client';
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+interface DashboardStats {
+  totalInvoices: number;
+  activeClients: number;
+  templates: number;
+  businessProfiles: number;
+  monthlyRevenue: number;
+  pendingInvoices: number;
+  paidInvoices: number;
+  recentInvoices: Array<{
+    id: string;
+    invoiceNumber: string;
+    status: string;
+    totalAmount: number;
+    createdAt: string;
+  }>;
+}
 
 export default function Dashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/dashboard/stats');
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard statistics');
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-fade-in">
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-8 text-white">
+          <div className="animate-pulse">
+            <div className="h-8 bg-slate-700 rounded w-1/2 mb-2"></div>
+            <div className="h-4 bg-slate-700 rounded w-3/4"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <div className="animate-pulse">
+                <div className="h-4 bg-slate-200 rounded w-1/2 mb-2"></div>
+                <div className="h-8 bg-slate-200 rounded w-1/3"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">Error loading dashboard: {error}</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header Section */}
@@ -19,7 +101,10 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">Total Invoices</p>
-              <p className="text-2xl font-bold text-slate-900">24</p>
+              <p className="text-2xl font-bold text-slate-900">{stats?.totalInvoices || 0}</p>
+              {stats && stats.pendingInvoices > 0 && (
+                <p className="text-xs text-amber-600">{stats.pendingInvoices} pending</p>
+              )}
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +118,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">Active Clients</p>
-              <p className="text-2xl font-bold text-slate-900">12</p>
+              <p className="text-2xl font-bold text-slate-900">{stats?.activeClients || 0}</p>
             </div>
             <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +132,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">Templates</p>
-              <p className="text-2xl font-bold text-slate-900">8</p>
+              <p className="text-2xl font-bold text-slate-900">{stats?.templates || 0}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,7 +146,10 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-600">This Month</p>
-              <p className="text-2xl font-bold text-slate-900">$12,450</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(stats?.monthlyRevenue || 0)}</p>
+              {stats && stats.paidInvoices > 0 && (
+                <p className="text-xs text-emerald-600">{stats.paidInvoices} paid invoices</p>
+              )}
             </div>
             <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,6 +303,50 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Recent Activity */}
+      {stats && stats.recentInvoices && stats.recentInvoices.length > 0 && (
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Recent Invoices</h2>
+          <div className="space-y-4">
+            {stats.recentInvoices.map((invoice) => (
+              <div key={invoice.id} className="flex items-center justify-between p-4 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-3 h-3 rounded-full ${
+                    invoice.status === 'paid' ? 'bg-emerald-500' :
+                    invoice.status === 'pending' ? 'bg-amber-500' :
+                    'bg-slate-400'
+                  }`}></div>
+                  <div>
+                    <p className="font-medium text-slate-900">#{invoice.invoiceNumber}</p>
+                    <p className="text-sm text-slate-600">
+                      {new Date(invoice.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-slate-900">{formatCurrency(invoice.totalAmount)}</p>
+                  <p className={`text-sm capitalize ${
+                    invoice.status === 'paid' ? 'text-emerald-600' :
+                    invoice.status === 'pending' ? 'text-amber-600' :
+                    'text-slate-600'
+                  }`}>
+                    {invoice.status}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link
+              href="/dashboard/invoices"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              View all invoices →
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
