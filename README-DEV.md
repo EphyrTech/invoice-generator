@@ -253,11 +253,49 @@ yarn db:studio
 
 ## 🧪 Testing
 
+### Test Framework
+- **Jest** - Testing framework with 80% coverage requirement
+- **@testing-library/react** - Component testing utilities
+- **MSW** - API mocking for integration tests
+- **Supertest** - HTTP assertion testing
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests for CI
+npm run test:ci
+
+# Type checking
+npm run type-check
+```
+
+### Test Structure
+```
+__tests__/
+├── app/api/           # API route tests
+├── lib/               # Utility function tests
+└── utils/             # Test helpers
+```
+
+### Coverage Requirements
+- **Lines**: 80%
+- **Functions**: 80%
+- **Branches**: 80%
+- **Statements**: 80%
+
 ### Manual Testing
 ```bash
 # Start development environment
 docker-compose up -d
-yarn dev
+npm run dev
 
 # Test API endpoints
 curl http://localhost:3000/api/health
@@ -275,6 +313,8 @@ docker exec -it invoice-pdf-db-1 psql -U postgres -d invoice_db
 # Query data
 SELECT * FROM invoices LIMIT 5;
 ```
+
+For detailed testing information, see [TESTING.md](TESTING.md).
 
 ## 🚢 Deployment
 
