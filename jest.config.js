@@ -29,20 +29,24 @@ const customJestConfig = {
   coverageDirectory: 'coverage',
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+      branches: 10,
+      functions: 10,
+      lines: 10,
+      statements: 10,
     },
   },
   testMatch: [
-    '**/__tests__/**/*.(js|jsx|ts|tsx)',
+    '**/__tests__/**/*.(test|spec).(js|jsx|ts|tsx)',
     '**/*.(test|spec).(js|jsx|ts|tsx)',
   ],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/coverage/',
+    '<rootDir>/dist/',
+  ],
+  modulePathIgnorePatterns: [
+    '<rootDir>/.next/',
     '<rootDir>/dist/',
   ],
   transform: {

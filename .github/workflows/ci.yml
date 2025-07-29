@@ -148,16 +148,44 @@ jobs:
           context: .
           file: ./Dockerfile.prod
           push: false
+          load: true
           tags: invoice-pdf:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Test Docker image
         run: |
+          # Start container in background
           docker run --rm -d --name test-container -p 3000:3000 invoice-pdf:test
-          sleep 10
-          # Test health endpoint
-          curl -f http://localhost:3000/api/health || exit 1
+
+          # Wait for container to be ready
+          echo "Waiting for container to start..."
+          sleep 15
+
+          # Check if container is running
+          if ! docker ps | grep test-container; then
+            echo "Container failed to start"
+            docker logs test-container || true
+            exit 1
+          fi
+
+          # Test health endpoint with retries
+          for i in {1..5}; do
+            if curl -f http://localhost:3000/api/health; then
+              echo "Health check passed"
+              break
+            else
+              echo "Health check attempt $i failed, retrying..."
+              sleep 5
+            fi
+            if [ $i -eq 5 ]; then
+              echo "Health check failed after 5 attempts"
+              docker logs test-container || true
+              exit 1
+            fi
+          done
+
+          # Clean up
           docker stop test-container
 
   coverage:

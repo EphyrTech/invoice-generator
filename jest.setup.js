@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom'
 
+// Add Node.js polyfills for browser APIs
+const { TextEncoder, TextDecoder } = require('util')
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
 // Mock environment variables
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db'
 process.env.NODE_ENV = 'test'
