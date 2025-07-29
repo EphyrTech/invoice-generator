@@ -9,7 +9,9 @@ import {
 // GET /api/invoice-number-patterns - Get pattern templates and validation
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
+    // Handle case where request.url might be empty during static generation
+    const url = request.url || 'http://localhost:3000/api/invoice-number-patterns';
+    const { searchParams } = new URL(url);
     const action = searchParams.get('action');
 
     if (action === 'templates') {
@@ -46,7 +48,7 @@ export async function GET(request: NextRequest) {
         suffix: '',
         dateFormat: 'YYYY',
         counterDigits,
-        resetFrequency: resetFrequency as any,
+        resetFrequency: resetFrequency as 'never' | 'yearly' | 'monthly' | 'daily',
         lastResetDate: undefined
       };
 
@@ -121,7 +123,7 @@ export async function POST(request: NextRequest) {
       suffix: '',
       dateFormat: 'YYYY',
       counterDigits,
-      resetFrequency: resetFrequency as any,
+      resetFrequency: resetFrequency as 'never' | 'yearly' | 'monthly' | 'daily',
       lastResetDate: undefined
     };
 
