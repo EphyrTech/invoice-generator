@@ -14,13 +14,7 @@ type Client = {
   name: string;
 };
 
-type InvoiceTemplateItem = {
-  id: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  taxRate: number;
-};
+
 
 export default function NewInvoiceTemplate() {
   const router = useRouter();

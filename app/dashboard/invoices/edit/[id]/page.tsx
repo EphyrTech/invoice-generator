@@ -215,7 +215,6 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
       }
       
       // Get the action value (draft or final)
-      const form = e.currentTarget as HTMLFormElement;
       const actionButton = document.activeElement as HTMLButtonElement;
       const action = actionButton.value || 'draft';
       

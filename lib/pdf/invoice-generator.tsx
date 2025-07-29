@@ -1,6 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Font, Image } from '@react-pdf/renderer';
-import { format } from 'date-fns';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Image } from '@react-pdf/renderer';
 
 // Define types for invoice data
 export type InvoiceData = {

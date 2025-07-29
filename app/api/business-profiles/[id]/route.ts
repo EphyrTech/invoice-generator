@@ -61,8 +61,6 @@ export async function PUT(
       );
     }
 
-    const existingProfile = existingProfiles[0];
-
     // Update the profile
     const now = new Date();
 

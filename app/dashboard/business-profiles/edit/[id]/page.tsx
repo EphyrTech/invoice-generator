@@ -45,7 +45,7 @@ export default function EditBusinessProfile({ params }: { params: { id: string }
           throw new Error('Failed to fetch business profile');
         }
         const data: BusinessProfile = await response.json();
-        
+
         setFormData({
           name: data.name,
           email: data.email || '',
@@ -65,7 +65,7 @@ export default function EditBusinessProfile({ params }: { params: { id: string }
         setLoading(false);
       }
     }
-    
+
     fetchBusinessProfile();
   }, [params.id]);
 
