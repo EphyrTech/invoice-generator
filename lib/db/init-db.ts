@@ -5,6 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function initializeDatabase(): Promise<{ success: boolean; error?: any }> {
   try {
+    // Skip database operations during build time
+    if (process.env.SKIP_BUILD_STATIC_GENERATION === 'true') {
+      console.log('Database initialization skipped during build time');
+      return { success: true };
+    }
+
     // Run migrations if in development
     await runMigrations();
 

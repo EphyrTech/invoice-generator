@@ -26,8 +26,9 @@ COPY . .
 # Set build environment
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_BUILD_STATIC_GENERATION=true
 
-# Build the application
+# Build the application (without database connection)
 RUN npm run build
 
 # Stage 3: Runner

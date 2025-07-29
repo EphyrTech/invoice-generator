@@ -5,6 +5,20 @@ import { sql, eq, and, gte } from 'drizzle-orm';
 
 export async function GET() {
   try {
+    // Skip database operations during build time
+    if (process.env.SKIP_BUILD_STATIC_GENERATION === 'true') {
+      return NextResponse.json({
+        totalInvoices: 0,
+        activeClients: 0,
+        templates: 0,
+        businessProfiles: 0,
+        monthlyRevenue: 0,
+        pendingInvoices: 0,
+        paidInvoices: 0,
+        recentInvoices: []
+      });
+    }
+
     // Get total invoices count
     const totalInvoicesResult = await db
       .select({ count: sql<number>`count(*)` })
