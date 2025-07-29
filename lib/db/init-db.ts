@@ -3,16 +3,16 @@ import { businessProfiles, clients, invoices, invoiceItems, invoiceTemplates, in
 import { users } from './schema/auth-schema';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function initializeDatabase() {
+export async function initializeDatabase(): Promise<{ success: boolean; error?: any }> {
   try {
     // Run migrations if in development
     await runMigrations();
-    
+
     // Create a default user if none exists
     const existingUsers = await db.query.users.findMany({
       limit: 1,
     });
-    
+
     if (existingUsers.length === 0) {
       const userId = uuidv4();
       
@@ -171,9 +171,12 @@ export async function initializeDatabase() {
       
       console.log('Database initialized with sample data');
     } else {
-      console.log('Database already contains data, skipping initialization');
+      console.log('Database already has users, skipping initialization');
     }
+
+    return { success: true };
   } catch (error) {
     console.error('Error initializing database:', error);
+    return { success: false, error };
   }
 }
