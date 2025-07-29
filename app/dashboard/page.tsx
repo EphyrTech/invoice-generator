@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 interface DashboardStats {
   totalInvoices: number;
   activeClients: number;

@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 type BusinessProfile = {
   id: string;
   name: string;

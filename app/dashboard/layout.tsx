@@ -5,6 +5,9 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { signOut } from 'next-auth/react';
 
+// Force dynamic rendering for all dashboard pages to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z' },
   { name: 'Business Profiles', href: '/dashboard/business-profiles', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
