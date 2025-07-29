@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - SKIP_BUILD_STATIC_GENERATION=true
     restart: unless-stopped
     ports:
       - "3000"

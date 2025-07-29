@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db/db-client';
 import { v4 as uuidv4 } from 'uuid';
+import { serializeDbResult, serializeDbRow } from '@/lib/utils/serialize';
 
 // GET /api/business-profiles
 export async function GET() {
@@ -9,7 +10,7 @@ export async function GET() {
       'SELECT * FROM business_profiles ORDER BY created_at DESC'
     );
 
-    return NextResponse.json(profiles);
+    return NextResponse.json(serializeDbResult(profiles));
   } catch (error) {
     console.error('Error fetching business profiles:', error);
     return NextResponse.json(
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     const newProfile = result[0];
 
-    return NextResponse.json(newProfile, { status: 201 });
+    return NextResponse.json(serializeDbRow(newProfile), { status: 201 });
   } catch (error) {
     console.error('Error creating business profile:', error);
     return NextResponse.json(

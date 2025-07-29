@@ -14,7 +14,7 @@ const nextConfig = {
 
   // Environment variables available at build time
   env: {
-    SKIP_BUILD_STATIC_GENERATION: process.env.NODE_ENV === 'production' ? 'true' : 'false',
+    SKIP_BUILD_STATIC_GENERATION: process.env.SKIP_BUILD_STATIC_GENERATION || (process.env.NODE_ENV === 'production' ? 'true' : 'false'),
   },
 };
 

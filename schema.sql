@@ -110,6 +110,15 @@ CREATE TABLE IF NOT EXISTS invoice_templates (
   business_profile_id TEXT NOT NULL REFERENCES business_profiles(id) ON DELETE RESTRICT,
   client_id TEXT NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   invoice_number TEXT,
+  -- Invoice number pattern configuration
+  invoice_number_pattern TEXT DEFAULT 'INV-{YYYY}-{####}',
+  invoice_number_next_value INTEGER DEFAULT 1,
+  invoice_number_prefix TEXT DEFAULT 'INV',
+  invoice_number_suffix TEXT DEFAULT '',
+  invoice_number_date_format TEXT DEFAULT 'YYYY',
+  invoice_number_counter_digits INTEGER DEFAULT 4,
+  invoice_number_reset_frequency TEXT DEFAULT 'never', -- 'never', 'yearly', 'monthly', 'daily'
+  invoice_number_last_reset_date TEXT,
   issue_date TEXT,
   due_date TEXT,
   status TEXT DEFAULT 'draft',

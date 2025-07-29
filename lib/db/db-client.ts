@@ -4,15 +4,37 @@ import { Pool } from 'pg';
 let pool: Pool | null = null;
 
 export function getDbPool() {
+  // Skip database connection during build time (but not at runtime)
+  if (process.env.SKIP_BUILD_STATIC_GENERATION === 'true' && process.env.NODE_ENV !== 'production') {
+    return null;
+  }
+
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/invoice_db';
-    pool = new Pool({ connectionString });
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      console.warn('DATABASE_URL not provided, skipping database connection');
+      return null;
+    }
+    try {
+      pool = new Pool({ connectionString });
+      console.log('Database pool created successfully');
+    } catch (error) {
+      console.error('Failed to create database pool:', error);
+      return null;
+    }
   }
   return pool;
 }
 
 export async function query(text: string, params?: any[]) {
   const pool = getDbPool();
+
+  // Return empty array during build time or when database is not available
+  if (!pool) {
+    console.log('Database not available, returning empty result');
+    return [];
+  }
+
   try {
     const result = await pool.query(text, params);
     return result.rows;
