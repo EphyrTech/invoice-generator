@@ -20,6 +20,7 @@ services:
       # NextAuth configuration with defaults
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-invoice-nextauth-secret-change-in-production-2024}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
 
       # Disable telemetry
       - NEXT_TELEMETRY_DISABLED=1
@@ -49,7 +50,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backups:/backups:rw
-      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro
     networks:
       - app-network
     healthcheck:

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { signOut } from 'next-auth/react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z' },
@@ -20,6 +21,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile sidebar */}
@@ -36,7 +41,7 @@ export default function DashboardLayout({
               </svg>
             </button>
           </div>
-          <nav className="mt-6 px-3">
+          <nav className="mt-6 px-3 flex-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -58,6 +63,19 @@ export default function DashboardLayout({
               );
             })}
           </nav>
+
+          {/* Mobile logout button */}
+          <div className="p-4 border-t border-slate-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center px-3 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-200"
+            >
+              <svg className="mr-3 h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 
@@ -93,14 +111,25 @@ export default function DashboardLayout({
 
           {/* Footer in sidebar */}
           <div className="p-4 border-t border-slate-200">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm font-bold">IP</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">IP</span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-slate-900">Invoice PDF</p>
+                  <p className="text-xs text-slate-500">Professional invoicing</p>
+                </div>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-slate-900">Invoice PDF</p>
-                <p className="text-xs text-slate-500">Professional invoicing</p>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                title="Logout"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
