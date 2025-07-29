@@ -3,21 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
 
-  // Skip static generation for pages that need database access
-  // This prevents build-time database connection errors
-  experimental: {
-    skipTrailingSlashRedirect: true,
-  },
+  // Skip trailing slash redirect (moved out of experimental in Next.js 14)
+  skipTrailingSlashRedirect: true,
 
-  // Configure which pages to skip during static generation
+  // Configure build ID
   async generateBuildId() {
     // Use a simple build ID to avoid issues
     return 'build-' + Date.now();
-  },
-
-  // Skip static optimization for dynamic pages
-  async rewrites() {
-    return [];
   },
 
   // Environment variables available at build time
