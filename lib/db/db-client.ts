@@ -2,6 +2,7 @@ import { Pool } from 'pg';
 
 // Create a singleton database connection pool
 let pool: Pool | null = null;
+let migrationPromise: Promise<void> | null = null;
 
 export function getDbPool() {
   // Skip database connection during build time (but not at runtime)
@@ -35,11 +36,29 @@ export async function query(text: string, params?: any[]) {
     return [];
   }
 
+  // Ensure migrations run before any query (only in production)
+  if (process.env.NODE_ENV === 'production' && !migrationPromise) {
+    migrationPromise = runMigrationsOnce();
+  }
+  if (migrationPromise) {
+    await migrationPromise;
+  }
+
   try {
     const result = await pool.query(text, params);
     return result.rows;
   } catch (error) {
     console.error('Database query error:', error);
     throw error;
+  }
+}
+
+async function runMigrationsOnce() {
+  try {
+    const { runMigrations } = await import('./simple-migrations');
+    await runMigrations();
+  } catch (error) {
+    console.error('Migration error:', error);
+    // Continue anyway
   }
 }

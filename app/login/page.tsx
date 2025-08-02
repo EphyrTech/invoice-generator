@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
