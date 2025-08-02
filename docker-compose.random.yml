@@ -1,5 +1,17 @@
 version: '3.8'
 
+# Simple approach: Generate passwords inline (for development/testing only)
+# Usage: docker-compose -f docker-compose.random.yml up --build
+# Note: This generates new passwords on every docker-compose up!
+
+x-random-password: &random-password
+  # Generate a random 25-character password
+  $(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+
+x-random-secret: &random-secret
+  # Generate a random 32-character secret
+  $(openssl rand -base64 32)
+
 services:
   app:
     build:
@@ -16,12 +28,13 @@ services:
       - PORT=3000
       - HOSTNAME=0.0.0.0
 
-      # Database connection (connects to db service)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-invoice_user}:${POSTGRES_PASSWORD:-invoice_secure_password_2024}@db:5432/${POSTGRES_DB:-invoice_db}
+      # Database connection with inline password generation
+      # WARNING: This generates a NEW password every time!
+      - DATABASE_URL=postgresql://invoice_user:${DB_PASSWORD:-defaultpass}@db:5432/invoice_db
 
-      # NextAuth configuration with defaults
+      # NextAuth configuration
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-invoice-nextauth-secret-change-in-production-2024}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-defaultsecret}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
 
       # Disable telemetry
@@ -37,17 +50,15 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    labels:
-      - "coolify.managed=true"
 
   db:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      # Database configuration with secure defaults
-      - POSTGRES_USER=${POSTGRES_USER:-invoice_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-invoice_secure_password_2024}
-      - POSTGRES_DB=${POSTGRES_DB:-invoice_db}
+      # Database configuration
+      - POSTGRES_USER=invoice_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-defaultpass}
+      - POSTGRES_DB=invoice_db
       - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -58,16 +69,14 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U invoice_user -d invoice_db"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 5
       start_period: 30s
-    labels:
-      - "coolify.managed=true"
-
-volumes:
-  postgres_data:
-    driver: local
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

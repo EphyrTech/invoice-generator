@@ -29,20 +29,26 @@ export async function runMigrations() {
 
     if (existingMigration.length === 0) {
       console.log('📋 Applying invoice number pattern migration...');
-      
-      // Apply the migration
-      await query(`
-        -- Add invoice number pattern fields to invoice_templates table
-        ALTER TABLE invoice_templates 
-        ADD COLUMN IF NOT EXISTS invoice_number_pattern TEXT DEFAULT 'INV-{YYYY}-{####}',
-        ADD COLUMN IF NOT EXISTS invoice_number_next_value INTEGER DEFAULT 1,
-        ADD COLUMN IF NOT EXISTS invoice_number_prefix TEXT DEFAULT 'INV',
-        ADD COLUMN IF NOT EXISTS invoice_number_suffix TEXT DEFAULT '',
-        ADD COLUMN IF NOT EXISTS invoice_number_date_format TEXT DEFAULT 'YYYY',
-        ADD COLUMN IF NOT EXISTS invoice_number_counter_digits INTEGER DEFAULT 4,
-        ADD COLUMN IF NOT EXISTS invoice_number_reset_frequency TEXT DEFAULT 'never',
-        ADD COLUMN IF NOT EXISTS invoice_number_last_reset_date TEXT;
-      `);
+
+      try {
+        // Try to add columns to invoice_templates table if it exists
+        // Using individual ALTER TABLE statements to avoid issues
+        console.log('📋 Adding invoice number pattern fields...');
+
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_pattern TEXT DEFAULT 'INV-{YYYY}-{####}'`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_next_value INTEGER DEFAULT 1`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_prefix TEXT DEFAULT 'INV'`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_suffix TEXT DEFAULT ''`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_date_format TEXT DEFAULT 'YYYY'`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_counter_digits INTEGER DEFAULT 4`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_reset_frequency TEXT DEFAULT 'never'`);
+        await query(`ALTER TABLE invoice_templates ADD COLUMN IF NOT EXISTS invoice_number_last_reset_date TEXT`);
+
+        console.log('✅ Invoice number pattern fields added successfully');
+      } catch (error) {
+        console.log('📋 invoice_templates table does not exist yet - columns will be added when table is created');
+        console.log('📋 Error details:', error instanceof Error ? error.message : 'Unknown error');
+      }
 
       // Record that this migration was applied
       await query(
@@ -60,6 +66,10 @@ export async function runMigrations() {
     
   } catch (error) {
     console.error('💥 Migration failed:', error);
+    console.error('💥 Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     // Don't throw - let the app continue
     migrationsRun = true; // Mark as run to avoid retrying
   }

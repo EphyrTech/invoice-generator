@@ -30,6 +30,10 @@ yarn-error.log*
 .env.test
 .env.production
 
+# Docker secrets
+secrets/
+*.secret
+
 # vercel
 .vercel
 

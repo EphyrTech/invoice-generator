@@ -9,9 +9,10 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to login page and auth API routes
-        if (req.nextUrl.pathname.startsWith('/login') || 
-            req.nextUrl.pathname.startsWith('/api/auth')) {
+        // Allow access to login page, auth API routes, and health endpoint
+        if (req.nextUrl.pathname.startsWith('/login') ||
+            req.nextUrl.pathname.startsWith('/api/auth') ||
+            req.nextUrl.pathname === '/api/health') {
           return true;
         }
         
