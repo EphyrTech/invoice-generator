@@ -27,6 +27,8 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_BUILD_STATIC_GENERATION=true
+ENV NEXTAUTH_URL=http://localhost:3000
+ENV NEXTAUTH_SECRET=build-time-secret
 
 # Build the application (without database connection)
 RUN npm run build
