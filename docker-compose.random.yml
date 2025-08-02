@@ -35,7 +35,7 @@ services:
       # NextAuth configuration
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-defaultsecret}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-defaultpass}
 
       # Disable telemetry
       - NEXT_TELEMETRY_DISABLED=1
