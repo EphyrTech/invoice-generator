@@ -25,7 +25,9 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/login' });
+    // Use current browser host URL instead of hardcoded URL
+    const currentHost = window.location.origin;
+    await signOut({ callbackUrl: `${currentHost}/login` });
   };
 
   return (
