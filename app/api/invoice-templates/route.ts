@@ -74,24 +74,28 @@ export async function POST(request: NextRequest) {
       // Continue with the template creation anyway
     }
 
-    // Insert the template (using actual table structure)
+    // Insert the template (using production schema structure)
 
     const result = await query(
       `INSERT INTO invoice_templates (
-        id, user_id, name, description, business_profile_id, client_id,
-        due_days, tax_rate, notes, terms, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+        id, user_id, name, business_profile_id, client_id, invoice_number,
+        issue_date, due_date, status, tax_rate, discount_rate, notes, terms, currency, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
       [
         templateId,
         userId,
         body.name,
-        body.description || null,
         body.businessProfileId,
         body.clientId,
-        body.dueDays || 30,
+        body.invoiceNumber || null,
+        body.issueDate || null,
+        body.dueDate || null,
+        body.status || 'draft',
         body.taxRate || 0,
+        body.discountRate || 0,
         body.notes || null,
         body.terms || null,
+        body.currency || 'USD',
         now,
         now
       ]

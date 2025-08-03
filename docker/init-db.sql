@@ -144,5 +144,18 @@ CREATE TABLE IF NOT EXISTS invoice_template_items (
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO invoice_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO invoice_user;
 
+-- Insert default data for development/testing
+INSERT INTO users (id, name, email, email_verified, created_at, updated_at)
+SELECT 'user-1', 'Demo User', 'demo@example.com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = 'user-1');
+
+INSERT INTO business_profiles (id, user_id, name, email, phone, address, city, state, postal_code, country, tax_id, created_at, updated_at)
+SELECT 'bp-1', 'user-1', 'My Company', 'info@mycompany.com', '+1 (555) 123-4567', '123 Business St', 'City', 'State', '12345', 'USA', '123456789', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+WHERE NOT EXISTS (SELECT 1 FROM business_profiles WHERE id = 'bp-1');
+
+INSERT INTO clients (id, user_id, name, email, phone, address, city, state, postal_code, country, created_at, updated_at)
+SELECT 'client-1', 'user-1', 'Sample Client', 'client@example.com', '+1 (555) 987-6543', '456 Client Ave', 'Client City', 'Client State', '67890', 'USA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE id = 'client-1');
+
 -- Log successful initialization
 SELECT 'Database tables created successfully' as status;
