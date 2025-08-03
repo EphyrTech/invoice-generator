@@ -1,0 +1,44 @@
+version: '3.8'
+
+# Docker Compose for testing
+# Usage: docker-compose -f docker-compose.secrets.yml -f docker-compose.test.yml up --build
+
+services:
+  # Test runner service - runs comprehensive tests after app is ready
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      app:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    networks:
+      - app-network
+    environment:
+      - NODE_ENV=test
+      - APP_URL=http://app:3000
+      - DOCKER_CONTAINER=true
+      - TEST_TIMEOUT=600
+      # Control which tests to run
+      - SKIP_UNIT_TESTS=${SKIP_UNIT_TESTS:-false}
+      - SKIP_INTEGRATION_TESTS=${SKIP_INTEGRATION_TESTS:-false}
+      - SKIP_SMOKE_TESTS=${SKIP_SMOKE_TESTS:-false}
+      # Database connection for integration tests
+      - DATABASE_URL=postgresql://invoice_user:${DB_PASSWORD:-invoice_secure_password_2024}@db:5432/invoice_db
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./__tests__:/app/__tests__:ro
+      - ./package.json:/app/package.json:ro
+      - ./package-lock.json:/app/package-lock.json:ro
+      - ./jest.config.js:/app/jest.config.js:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+    restart: "no"
+    labels:
+      - "coolify.managed=false"
+
+networks:
+  app-network:
+    external: true
+    name: invoice-pdf_app-network

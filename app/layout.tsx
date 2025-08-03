@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Invoice PDF Generator',
   description: 'Generate PDF invoices for your business',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

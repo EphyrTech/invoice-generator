@@ -57,10 +57,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy public directory if it exists
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Copy migration files and scripts
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/migrations ./lib/db/migrations
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/migrations.ts ./lib/db/migrations.ts
-COPY --from=builder --chown=nextjs:nodejs /app/lib/db/run-migrations.ts ./lib/db/run-migrations.ts
+# Copy database client
 COPY --from=builder --chown=nextjs:nodejs /app/lib/db/db-client.ts ./lib/db/db-client.ts
 COPY --from=builder --chown=nextjs:nodejs /app/lib/utils ./lib/utils
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
