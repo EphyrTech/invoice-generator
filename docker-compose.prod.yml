@@ -20,7 +20,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-invoice_user}:${POSTGRES_PASSWORD:-invoice_secure_password_2024}@db:5432/${POSTGRES_DB:-invoice_db}
 
       # NextAuth configuration with defaults
-      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_URL=${SERVICE_URL_APP:-${NEXTAUTH_URL:-http://localhost:3000}}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-invoice-nextauth-secret-change-in-production-2024}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
 
