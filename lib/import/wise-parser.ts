@@ -124,8 +124,8 @@ export function parseWiseText(text: string): WiseParseResult {
 
     const date = parseWiseDate(dateMatch[1])
 
-    // Extract reference (Transaction: XXXX)
-    const refMatch = anchorLine.match(/Transaction:\s+(\S+)/)
+    // Extract reference (Transaction: XXXX) — reference ends before "Reference:" or end of line
+    const refMatch = anchorLine.match(/Transaction:\s*(\S+?)(?=Reference:|$|\s)/)
     const reference = refMatch ? refMatch[1] : ''
 
     // Collect description lines: everything above the anchor line until the previous
@@ -140,7 +140,7 @@ export function parseWiseText(text: string): WiseParseResult {
 
       // Check if this is an amounts line (one or two numbers, possibly negative, possibly with commas)
       // Amounts lines look like: "-25.51 697.15" or "100.00 2,132.93" or "0.59 2,100.93"
-      if (/^-?[\d,]+\.\d{2}(\s+-?[\d,]+\.\d{2})?$/.test(line)) {
+      if (/^-?[\d,]+\.\d{2}\s*(-?[\d,]+\.\d{2})?$/.test(line)) {
         break
       }
 

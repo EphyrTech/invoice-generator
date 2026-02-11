@@ -339,6 +339,121 @@ describe('parseWiseText', () => {
     })
   })
 
+  // --- USD statement (no-space format from pdf-parse/lib/pdf-parse) ---
+
+  describe('USD statement with no-space column format', () => {
+    const USD_PDF_TEXT = `Wise Europe SA
+Rue du Trône 100, 3rd floor
+Brussels
+1050
+Belgium
+USD statement
+1 January 2026 [GMT] - 31 January 2026 [GMT]
+Generated on: 11 February 2026
+Account Holder
+EphyrTech OÜ
+Masina tn 22
+Kesklinna district, Tallinn city, Harju county
+10113
+Estonia
+Account number
+563252420989629
+Routing number
+084009519
+Swift/BIC
+TRWIUS35XXX
+USD on 31 January 2026 [GMT]1,925.99 USD
+DescriptionIncomingOutgoingAmount
+Card transaction of 32.00 USD issued by Backblaze Inc BACKBLAZE.COM
+27 January 2026Card ending in 9924Bohdan-Volodymyr LesivTransaction: CARD-3390446938
+-32.001,925.99
+Card transaction of 108.90 EUR issued by Claude.ai Subscription ANTHROPIC.
+COM
+26 January 2026Card ending in 9924Bohdan-Volodymyr LesivTransaction: CARD-3386929651
+-7.211,957.99
+Card transaction of 300.00 GBP issued by Avis Budget London
+20 January 2026Card ending in 7537Bohdan-Volodymyr LesivTransaction: CARD-3358217165
+402.261,965.20
+Card transaction of 300.00 GBP issued by Avis Budget London
+18 January 2026Card ending in 7537Bohdan-Volodymyr LesivTransaction: CARD-3358217165
+-402.261,562.94
+Sent money to Bohdan-Volodymyr Lesiv
+12 January 2026Transaction: TRANSFER-1916123887Reference: Payment by contract myde5nq
+-6,000.001,965.20
+Card transaction of 24.80 USD issued by Figma FIGMA.COM
+10 January 2026Card ending in 9924Bohdan-Volodymyr LesivTransaction: CARD-3331259541
+-24.807,965.20
+Card transaction of 10.00 USD issued by Aqua Voice AQUAVOICE.COM
+9 January 2026Card ending in 7537Bohdan-Volodymyr LesivTransaction: CARD-3328110221
+-10.007,990.00
+Received money from GUSTO with reference 021000028330932
+6 January 2026Transaction: TRANSFER-1907329445Reference: 021000028330932
+8,000.008,000.00
+Wise is the trading name of Wise Europe SA, a Payment Institution authorised by the National Bank of Belgium, incorporated in Belgium with
+registered number 0713629988 and registered office at Rue Du Trône 100, 3rd floor, 1050, Brussels, Belgium.
+Need help? Visit wise.com/help`
+
+    it('should extract USD currency', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      expect(result.currency).toBe('USD')
+    })
+
+    it('should extract 8 transactions', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      expect(result.transactions).toHaveLength(8)
+    })
+
+    it('should parse Backblaze with correct description', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const tx = result.transactions.find(t => t.reference === 'CARD-3390446938')
+      expect(tx).toBeDefined()
+      expect(tx!.description).toContain('Backblaze')
+      expect(tx!.outgoing).toBe(32.00)
+      expect(tx!.date).toBe('2026-01-27')
+    })
+
+    it('should parse Anthropic with wrapped description', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const tx = result.transactions.find(t => t.reference === 'CARD-3386929651')
+      expect(tx).toBeDefined()
+      expect(tx!.description).toContain('Claude.ai')
+      expect(tx!.description).toContain('ANTHROPIC')
+      expect(tx!.outgoing).toBe(7.21)
+    })
+
+    it('should parse Avis Budget incoming (refund)', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const tx = result.transactions.find(t => t.date === '2026-01-20')
+      expect(tx).toBeDefined()
+      expect(tx!.incoming).toBe(402.26)
+      expect(tx!.outgoing).toBeNull()
+    })
+
+    it('should parse large outgoing transfer', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const tx = result.transactions.find(t => t.reference === 'TRANSFER-1916123887')
+      expect(tx).toBeDefined()
+      expect(tx!.outgoing).toBe(6000.00)
+      expect(tx!.description).toContain('Sent money')
+    })
+
+    it('should parse GUSTO incoming', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const tx = result.transactions.find(t => t.reference === 'TRANSFER-1907329445')
+      expect(tx).toBeDefined()
+      expect(tx!.incoming).toBe(8000.00)
+      expect(tx!.description).toContain('GUSTO')
+    })
+
+    it('should have unique descriptions for each transaction', () => {
+      const result = parseWiseText(USD_PDF_TEXT)
+      const descriptions = result.transactions.map(t => t.description)
+      const unique = new Set(descriptions)
+      // At least 7 unique (Avis Budget London appears twice with same desc)
+      expect(unique.size).toBeGreaterThanOrEqual(7)
+    })
+  })
+
   // --- Error cases ---
 
   describe('error handling', () => {
