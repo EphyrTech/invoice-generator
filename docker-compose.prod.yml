@@ -9,7 +9,7 @@ services:
         - SKIP_BUILD_STATIC_GENERATION=true
     restart: unless-stopped
     ports:
-      - "3000"
+      - "3000:3000"
     environment:
       # Production environment
       - NODE_ENV=production
@@ -39,6 +39,11 @@ services:
       start_period: 60s
     labels:
       - "coolify.managed=true"
+      - "traefik.enable=true"
+      - "traefik.http.routers.invoice-http.rule=Host(`${SERVICE_FQDN_APP:-invoice.home}`)"
+      - "traefik.http.routers.invoice-http.entryPoints=http"
+      - "traefik.http.services.invoice.loadbalancer.server.port=3000"
+      - "traefik.docker.network=${COOLIFY_RESOURCE_UUID:-iosow4kcoccw4c48gkw0k4c4}"
 
   db:
     image: postgres:15-alpine
