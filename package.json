@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "test": "jest",
@@ -30,6 +29,7 @@
     "drizzle-orm": "^0.29.3",
     "next": "^14.2.30",
     "next-auth": "^4.24.5",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "react": "^18.2.0",

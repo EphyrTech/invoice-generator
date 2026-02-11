@@ -143,6 +143,12 @@ export default function Invoices() {
           >
             Create from Template
           </Link>
+          <Link
+            href="/dashboard/invoices/import"
+            className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded"
+          >
+            Import from Wise
+          </Link>
         </div>
       </div>
 
