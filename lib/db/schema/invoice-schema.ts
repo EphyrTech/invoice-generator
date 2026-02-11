@@ -17,6 +17,9 @@ export const businessProfiles = pgTable('business_profiles', {
   country: text('country'),
   taxId: text('tax_id'),
   logoUrl: text('logo_url'),
+  defaultShowLogo: boolean('default_show_logo').default(false),
+  defaultShowStatus: boolean('default_show_status').default(false),
+  defaultPdfTheme: text('default_pdf_theme').default('clean'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -70,6 +73,10 @@ export const invoices = pgTable('invoices', {
   isRecurring: boolean('is_recurring').default(false),
   recurringInterval: text('recurring_interval'),
   nextIssueDate: text('next_issue_date'),
+  publicToken: text('public_token').unique(),
+  showLogoPublic: boolean('show_logo_public').default(false),
+  showStatusPublic: boolean('show_status_public').default(false),
+  pdfTheme: text('pdf_theme').default('clean'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
