@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-// @ts-ignore
-import pdfParse from 'pdf-parse'
+// eslint-disable-next-line
+const pdfParse = require('pdf-parse')
 import { parseWiseText } from '@/lib/import/wise-parser'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB

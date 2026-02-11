@@ -15,9 +15,9 @@ interface TransactionRowProps {
   clientId: string;
   businessProfiles: Array<{ id: string; name: string }>;
   clients: Array<{ id: string; name: string }>;
-  onCheckChange: (checked: boolean) => void;
-  onBusinessProfileChange: (id: string) => void;
-  onClientChange: (id: string) => void;
+  onCheckChange: (_checked: boolean) => void;
+  onBusinessProfileChange: (_id: string) => void;
+  onClientChange: (_id: string) => void;
 }
 
 export default function TransactionRow({

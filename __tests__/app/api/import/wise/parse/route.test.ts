@@ -19,8 +19,8 @@ jest.mock('@/lib/import/wise-parser', () => ({
 }))
 
 // Get reference to mocked pdf-parse
-// @ts-ignore
-import pdfParse from 'pdf-parse'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require('pdf-parse')
 const mockPdfParse = pdfParse as jest.MockedFunction<typeof pdfParse>
 const mockParseWiseText = parseWiseText as jest.MockedFunction<typeof parseWiseText>
 

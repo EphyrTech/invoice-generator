@@ -23,8 +23,8 @@ interface TransactionTableProps {
   rowStates: RowState[];
   businessProfiles: Array<{ id: string; name: string }>;
   clients: Array<{ id: string; name: string }>;
-  onRowStateChange: (index: number, state: Partial<RowState>) => void;
-  onToggleAll: (checked: boolean) => void;
+  onRowStateChange: (_index: number, _state: Partial<RowState>) => void;
+  onToggleAll: (_checked: boolean) => void;
 }
 
 export default function TransactionTable({

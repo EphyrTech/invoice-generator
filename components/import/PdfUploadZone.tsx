@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 
 interface PdfUploadZoneProps {
-  onFileSelected: (file: File) => void
+  onFileSelected: (_file: File) => void
   isUploading: boolean
   error: string | null
 }
