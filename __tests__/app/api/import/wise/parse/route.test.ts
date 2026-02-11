@@ -10,7 +10,7 @@ jest.mock('next/server', () => ({
   },
 }))
 
-jest.mock('pdf-parse', () => {
+jest.mock('pdf-parse/lib/pdf-parse', () => {
   return jest.fn()
 })
 
@@ -18,9 +18,9 @@ jest.mock('@/lib/import/wise-parser', () => ({
   parseWiseText: jest.fn(),
 }))
 
-// Get reference to mocked pdf-parse (handler uses dynamic require, jest mock intercepts it)
+// Get reference to mocked pdf-parse/lib/pdf-parse (handler uses dynamic require)
 // eslint-disable-next-line
-const pdfParse = require('pdf-parse')
+const pdfParse = require('pdf-parse/lib/pdf-parse')
 const mockPdfParse = pdfParse as jest.MockedFunction<typeof pdfParse>
 const mockParseWiseText = parseWiseText as jest.MockedFunction<typeof parseWiseText>
 

@@ -31,9 +31,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Dynamic require to avoid pdf-parse loading test fixtures at build time
+    // Require internal module directly to skip index.js debug mode
+    // which tries to load ./test/data/05-versions-space.pdf
     // eslint-disable-next-line
-    const pdfParse = require('pdf-parse')
+    const pdfParse = require('pdf-parse/lib/pdf-parse')
 
     // Extract text from PDF
     const arrayBuffer = await file.arrayBuffer()
