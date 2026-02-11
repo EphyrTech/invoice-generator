@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-// eslint-disable-next-line
-const pdfParse = require('pdf-parse')
 import { parseWiseText } from '@/lib/import/wise-parser'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -32,6 +30,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Dynamic require to avoid pdf-parse loading test fixtures at build time
+    // eslint-disable-next-line
+    const pdfParse = require('pdf-parse')
 
     // Extract text from PDF
     const arrayBuffer = await file.arrayBuffer()
