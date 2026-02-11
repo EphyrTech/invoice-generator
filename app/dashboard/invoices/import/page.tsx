@@ -140,18 +140,14 @@ export default function WiseImportPage() {
         .filter(({ state }) => state.checked)
 
       const requestBody = {
-        invoices: selectedRows.map(({ transaction, state }) => ({
+        transactions: selectedRows.map(({ transaction, state }) => ({
+          description: transaction.description,
+          date: transaction.date,
+          amount: transaction.amount,
+          currency: transaction.currency,
+          reference: transaction.reference,
           businessProfileId: state.businessProfileId,
           clientId: state.clientId,
-          transaction: {
-            description: transaction.description,
-            date: transaction.date,
-            incoming: transaction.incoming,
-            outgoing: transaction.outgoing,
-            amount: transaction.amount,
-            reference: transaction.reference,
-            currency: transaction.currency,
-          },
         })),
       }
 
