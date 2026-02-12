@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db/db-client';
+import { rateLimit } from '@/lib/utils/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +9,14 @@ export async function GET(
   { params }: { params: { token: string } }
 ) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    if (!rateLimit(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429 }
+      );
+    }
+
     const token = params.token;
 
     const invoices = await query(
