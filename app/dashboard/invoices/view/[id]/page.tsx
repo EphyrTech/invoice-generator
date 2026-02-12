@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { InvoiceDownloadLink } from '@/lib/pdf/invoice-generator';
+import { generateQrDataUrl } from '@/lib/pdf/qr-code';
 
 type BusinessProfile = {
   id: string;
@@ -58,6 +59,10 @@ type Invoice = {
   business_profile_id: string;
   client_id: string;
   items: InvoiceItem[];
+  public_token: string | null;
+  show_logo_public: boolean;
+  show_status_public: boolean;
+  pdf_theme: string;
   businessProfile?: BusinessProfile;
   client?: Client;
 };
@@ -66,6 +71,9 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [publicToken, setPublicToken] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     async function fetchInvoice() {
@@ -99,6 +107,26 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
         };
 
         setInvoice(fullInvoice);
+
+        // Auto-create public token if missing (for QR code on PDF)
+        let token = invoiceData.public_token;
+        if (!token) {
+          try {
+            const shareResponse = await fetch(`/api/invoices/${params.id}/share`, { method: 'POST' });
+            if (shareResponse.ok) {
+              const shareData = await shareResponse.json();
+              token = shareData.publicToken;
+            }
+          } catch {
+            // Sharing is optional, don't block the page load
+          }
+        }
+        if (token) {
+          setPublicToken(token);
+          const publicUrl = `${window.location.origin}/i/${token}`;
+          const qr = await generateQrDataUrl(publicUrl);
+          setQrDataUrl(qr);
+        }
       } catch (err) {
         console.error('Error loading invoice:', err);
         setError('Error loading invoice. Please try again.');
@@ -163,6 +191,7 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
     total: invoice.total,
     notes: invoice.notes || undefined,
     terms: invoice.terms || undefined,
+    qrCodeDataUrl: qrDataUrl || undefined,
     businessProfile: {
       name: invoice.businessProfile?.name || '',
       email: invoice.businessProfile?.email || '',
@@ -206,11 +235,19 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
           >
             Edit Invoice
           </Link>
-          <InvoiceDownloadLink data={pdfInvoiceData}>
+          <InvoiceDownloadLink data={pdfInvoiceData} theme={invoice.pdf_theme || 'clean'}>
             <button className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded">
               Download PDF
             </button>
           </InvoiceDownloadLink>
+          {publicToken && (
+            <button
+              onClick={() => navigator.clipboard.writeText(`${window.location.origin}/i/${publicToken}`)}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded"
+            >
+              Copy Public Link
+            </button>
+          )}
         </div>
       </div>
 
