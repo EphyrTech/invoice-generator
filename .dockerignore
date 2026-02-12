@@ -7,3 +7,10 @@ README.md
 .dockerignore
 Dockerfile
 docker-compose*
+mcp-server
+backups
+.claude
+docs
+__tests__
+coverage
+*.md
