@@ -18,6 +18,9 @@ export type InvoiceData = {
   notes?: string;
   terms?: string;
 
+  // QR code for public link
+  qrCodeDataUrl?: string;
+
   // Business profile (vendor)
   businessProfile: {
     name: string;

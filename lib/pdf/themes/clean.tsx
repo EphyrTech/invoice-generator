@@ -282,6 +282,14 @@ const CleanTheme: React.FC<{ data: InvoiceData }> = ({ data }) => {
             </View>
           )}
         </View>
+
+        {/* QR Code */}
+        {data.qrCodeDataUrl && (
+          <View style={{ position: 'absolute', bottom: 30, right: 30, alignItems: 'center' }}>
+            <Image src={data.qrCodeDataUrl} style={{ width: 80, height: 80 }} />
+            <Text style={{ fontSize: 7, color: '#999999', marginTop: 2 }}>Scan to view online</Text>
+          </View>
+        )}
       </Page>
     </Document>
   );
