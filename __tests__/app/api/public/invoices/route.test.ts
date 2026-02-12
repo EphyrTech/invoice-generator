@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db/db-client'
 
 jest.mock('@/lib/db/db-client')
+jest.mock('@/lib/utils/rate-limit', () => ({
+  rateLimit: jest.fn(() => true),
+}))
 jest.mock('next/server', () => ({
   NextRequest: jest.fn(),
   NextResponse: {
@@ -44,7 +47,7 @@ describe('/api/public/invoices/[token]', () => {
     const mockResponse = { status: 200 }
     ;(NextResponse.json as jest.Mock).mockReturnValue(mockResponse)
 
-    await GET({} as NextRequest, { params: { token: 'abc123token' } })
+    await GET({ headers: { get: jest.fn(() => '127.0.0.1') } } as unknown as NextRequest, { params: { token: 'abc123token' } })
 
     expect(mockQuery.mock.calls[0][1]).toContain('abc123token')
     expect(NextResponse.json).toHaveBeenCalledWith(
@@ -63,7 +66,7 @@ describe('/api/public/invoices/[token]', () => {
     const mockResponse = { status: 404 }
     ;(NextResponse.json as jest.Mock).mockReturnValue(mockResponse)
 
-    await GET({} as NextRequest, { params: { token: 'bad-token' } })
+    await GET({ headers: { get: jest.fn(() => '127.0.0.1') } } as unknown as NextRequest, { params: { token: 'bad-token' } })
 
     expect(NextResponse.json).toHaveBeenCalledWith(
       { error: 'Invoice not found' },
@@ -95,7 +98,7 @@ describe('/api/public/invoices/[token]', () => {
     const mockResponse = { status: 200 }
     ;(NextResponse.json as jest.Mock).mockReturnValue(mockResponse)
 
-    await GET({} as NextRequest, { params: { token: 'abc123token' } })
+    await GET({ headers: { get: jest.fn(() => '127.0.0.1') } } as unknown as NextRequest, { params: { token: 'abc123token' } })
 
     const responseData = (NextResponse.json as jest.Mock).mock.calls[0][0]
     expect(responseData.user_id).toBeUndefined()

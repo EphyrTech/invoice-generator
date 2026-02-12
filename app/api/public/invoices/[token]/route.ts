@@ -49,6 +49,7 @@ export async function GET(
     );
 
     // Strip sensitive fields
+    // eslint-disable-next-line no-unused-vars
     const { user_id, ...safeInvoice } = invoice;
 
     return NextResponse.json({

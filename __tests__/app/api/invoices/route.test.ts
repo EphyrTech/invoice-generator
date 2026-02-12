@@ -273,7 +273,7 @@ describe('/api/invoices', () => {
 
       // Verify calculations in the insert call (calls[0] is profile defaults SELECT, calls[1] is INSERT)
       const insertCall = mockQuery.mock.calls[1]
-      const insertParams = insertCall[1]
+      const insertParams = insertCall[1] as unknown[]
 
       // Expected calculations:
       // Item 1: 10 * 100 = 1000
@@ -308,7 +308,7 @@ describe('/api/invoices', () => {
 
       // Should still create invoice with zero totals (calls[0] is profile defaults SELECT, calls[1] is INSERT)
       const insertCall = mockQuery.mock.calls[1]
-      const insertParams = insertCall[1]
+      const insertParams = insertCall[1] as unknown[]
 
       expect(insertParams[8]).toBe(0) // subtotal
       expect(insertParams[10]).toBe(0) // taxAmount

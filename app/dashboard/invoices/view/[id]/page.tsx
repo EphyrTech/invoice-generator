@@ -73,7 +73,7 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [publicToken, setPublicToken] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
+
 
   useEffect(() => {
     async function fetchInvoice() {
