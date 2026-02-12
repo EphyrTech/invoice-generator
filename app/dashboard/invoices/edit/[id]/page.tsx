@@ -40,6 +40,10 @@ type Invoice = {
   total: number;
   notes: string | null;
   terms: string | null;
+  public_token: string | null;
+  show_logo_public: boolean;
+  show_status_public: boolean;
+  pdf_theme: string;
   items: InvoiceItem[];
 };
 
@@ -52,7 +56,9 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
-  
+  const [publicToken, setPublicToken] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
   const [formData, setFormData] = useState({
     businessProfileId: '',
     clientId: '',
@@ -65,7 +71,10 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
     discountRate: 0,
     notes: '',
     terms: '',
-    templateName: ''
+    templateName: '',
+    showLogoPublic: false,
+    showStatusPublic: false,
+    pdfTheme: 'clean',
   });
   
   // Calculate subtotal, tax, discount, and total
@@ -106,8 +115,12 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
           discountRate: invoiceData.discount_rate,
           notes: invoiceData.notes || '',
           terms: invoiceData.terms || '',
-          templateName: ''
+          templateName: '',
+          showLogoPublic: invoiceData.show_logo_public || false,
+          showStatusPublic: invoiceData.show_status_public || false,
+          pdfTheme: invoiceData.pdf_theme || 'clean',
         });
+        setPublicToken(invoiceData.public_token || null);
         
         // Set items
         if (invoiceData.items && invoiceData.items.length > 0) {
@@ -275,6 +288,31 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
       console.error(err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const response = await fetch(`/api/invoices/${params.id}/share`, { method: 'POST' });
+      const data = await response.json();
+      setPublicToken(data.publicToken);
+    } catch (err) {
+      console.error('Error sharing invoice:', err);
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleUnshare = async () => {
+    setSharing(true);
+    try {
+      await fetch(`/api/invoices/${params.id}/share`, { method: 'DELETE' });
+      setPublicToken(null);
+    } catch (err) {
+      console.error('Error unsharing invoice:', err);
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -631,6 +669,91 @@ export default function EditInvoice({ params }: { params: { id: string } }) {
           </div>
         </div>
         
+        {/* Public Sharing & Display */}
+        <div className="border-t border-gray-200 pt-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-3">Public Sharing</h2>
+
+          {/* Share button */}
+          <div className="mb-4">
+            {publicToken ? (
+              <div className="flex items-center space-x-3">
+                <input
+                  type="text"
+                  readOnly
+                  value={`${window.location.origin}/i/${publicToken}`}
+                  className="flex-1 bg-gray-50 border border-gray-300 rounded-md py-2 px-3 text-sm text-gray-600"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(`${window.location.origin}/i/${publicToken}`)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded text-sm"
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUnshare}
+                  disabled={sharing}
+                  className="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded text-sm"
+                >
+                  {sharing ? 'Revoking...' : 'Revoke'}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleShare}
+                disabled={sharing}
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded text-sm"
+              >
+                {sharing ? 'Creating link...' : 'Create Public Link'}
+              </button>
+            )}
+          </div>
+
+          {/* Theme picker */}
+          <div className="mb-4">
+            <label htmlFor="pdfTheme" className="block text-sm font-medium text-gray-700 mb-1">
+              PDF Theme
+            </label>
+            <select
+              id="pdfTheme"
+              name="pdfTheme"
+              value={formData.pdfTheme}
+              onChange={handleChange}
+              className="block w-full sm:w-1/3 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="clean">Clean (Default)</option>
+              <option value="classic">Classic</option>
+              <option value="bold">Bold</option>
+              <option value="compact">Compact</option>
+            </select>
+          </div>
+
+          {/* Visibility toggles */}
+          <div className="space-y-2">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.showLogoPublic}
+                onChange={(e) => setFormData(prev => ({ ...prev, showLogoPublic: e.target.checked }))}
+                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+              <span className="ml-2 text-sm text-gray-700">Show logo on public link & PDF</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={formData.showStatusPublic}
+                onChange={(e) => setFormData(prev => ({ ...prev, showStatusPublic: e.target.checked }))}
+                className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
+              <span className="ml-2 text-sm text-gray-700">Show status on public link & PDF</span>
+            </label>
+          </div>
+        </div>
+
         {/* Save as Template */}
         <div className="border-t border-gray-200 pt-6">
           <div className="flex items-center mb-4">

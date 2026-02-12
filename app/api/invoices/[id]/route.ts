@@ -107,24 +107,27 @@ export async function PUT(
     const status = body.action === 'draft' ? 'draft' : (body.status || 'issued');
     
     const result = await query(
-      `UPDATE invoices SET 
-        business_profile_id = $1, 
-        client_id = $2, 
-        invoice_number = $3, 
-        issue_date = $4, 
-        due_date = $5, 
-        status = $6, 
-        subtotal = $7, 
-        tax_rate = $8, 
-        tax_amount = $9, 
-        discount_rate = $10, 
-        discount_amount = $11, 
-        total = $12, 
-        notes = $13, 
-        terms = $14, 
-        currency = $15, 
-        updated_at = $16 
-      WHERE id = $17 
+      `UPDATE invoices SET
+        business_profile_id = $1,
+        client_id = $2,
+        invoice_number = $3,
+        issue_date = $4,
+        due_date = $5,
+        status = $6,
+        subtotal = $7,
+        tax_rate = $8,
+        tax_amount = $9,
+        discount_rate = $10,
+        discount_amount = $11,
+        total = $12,
+        notes = $13,
+        terms = $14,
+        currency = $15,
+        show_logo_public = $16,
+        show_status_public = $17,
+        pdf_theme = $18,
+        updated_at = $19
+      WHERE id = $20
       RETURNING *`,
       [
         body.businessProfileId,
@@ -142,6 +145,9 @@ export async function PUT(
         body.notes || null,
         body.terms || null,
         body.currency || 'USD',
+        body.showLogoPublic ?? false,
+        body.showStatusPublic ?? false,
+        body.pdfTheme ?? 'clean',
         now,
         id
       ]
