@@ -15,7 +15,15 @@ export default withAuth(
             req.nextUrl.pathname === '/api/health') {
           return true;
         }
-        
+
+        // Allow public invoice viewing and public API routes
+        if (req.nextUrl.pathname.startsWith('/i/')) {
+          return true;
+        }
+        if (req.nextUrl.pathname.startsWith('/api/public/')) {
+          return true;
+        }
+
         // For all other routes, require authentication
         return !!token;
       },
