@@ -40,8 +40,9 @@ export async function POST(request: NextRequest) {
 
     const result = await query(
       `INSERT INTO business_profiles (
-        id, user_id, name, email, phone, address, city, state, postal_code, country, tax_id, logo_url, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+        id, user_id, name, email, phone, address, city, state, postal_code, country, tax_id, logo_url, created_at, updated_at,
+        default_show_logo, default_show_status, default_pdf_theme
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17) RETURNING *`,
       [
         id,
         userId,
@@ -56,7 +57,10 @@ export async function POST(request: NextRequest) {
         body.taxId || null,
         body.logoUrl || null,
         now,
-        now
+        now,
+        body.defaultShowLogo ?? false,
+        body.defaultShowStatus ?? false,
+        body.defaultPdfTheme ?? 'clean'
       ]
     );
 

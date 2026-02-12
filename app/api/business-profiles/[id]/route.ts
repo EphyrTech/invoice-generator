@@ -76,8 +76,11 @@ export async function PUT(
         country = $8,
         tax_id = $9,
         logo_url = $10,
-        updated_at = $11
-      WHERE id = $12
+        updated_at = $11,
+        default_show_logo = $12,
+        default_show_status = $13,
+        default_pdf_theme = $14
+      WHERE id = $15
       RETURNING *`,
       [
         body.name,
@@ -91,6 +94,9 @@ export async function PUT(
         body.taxId || null,
         body.logoUrl || null,
         now,
+        body.defaultShowLogo ?? false,
+        body.defaultShowStatus ?? false,
+        body.defaultPdfTheme ?? 'clean',
         id
       ]
     );

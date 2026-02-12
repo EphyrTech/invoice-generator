@@ -65,7 +65,17 @@ export async function POST(request: NextRequest) {
     const userId = 'user-1'; // In a real app, get this from the authenticated user
     const now = new Date();
     const status = body.action === 'draft' ? 'draft' : 'issued';
-    
+
+    // Fetch business profile defaults for cascade
+    const profileRows = await query(
+      'SELECT default_show_logo, default_show_status, default_pdf_theme FROM business_profiles WHERE id = $1',
+      [body.businessProfileId]
+    );
+    const profileDefaults = profileRows.length > 0 ? profileRows[0] : {};
+    const showLogoPublic = body.showLogoPublic ?? profileDefaults.default_show_logo ?? false;
+    const showStatusPublic = body.showStatusPublic ?? profileDefaults.default_show_status ?? false;
+    const pdfTheme = body.pdfTheme ?? profileDefaults.default_pdf_theme ?? 'clean';
+
     // Calculate totals
     const subtotal = body.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice), 0);
     const discountRate = body.discountRate || 0;
@@ -78,11 +88,12 @@ export async function POST(request: NextRequest) {
     // Insert the invoice
     const result = await query(
       `INSERT INTO invoices (
-        id, user_id, business_profile_id, client_id, invoice_number, 
-        issue_date, due_date, status, subtotal, tax_rate, tax_amount, 
-        discount_rate, discount_amount, total, notes, terms, currency, 
-        is_recurring, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) RETURNING *`,
+        id, user_id, business_profile_id, client_id, invoice_number,
+        issue_date, due_date, status, subtotal, tax_rate, tax_amount,
+        discount_rate, discount_amount, total, notes, terms, currency,
+        is_recurring, created_at, updated_at,
+        show_logo_public, show_status_public, pdf_theme
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING *`,
       [
         invoiceId,
         userId,
@@ -103,7 +114,10 @@ export async function POST(request: NextRequest) {
         body.currency || 'USD',
         false, // is_recurring
         now,
-        now
+        now,
+        showLogoPublic,
+        showStatusPublic,
+        pdfTheme
       ]
     );
     
@@ -253,13 +267,24 @@ async function createInvoiceFromTemplate(body: any) {
     const now = new Date();
     const status = action === 'draft' ? 'draft' : 'issued';
 
+    // Fetch business profile defaults for cascade
+    const profileRows = await query(
+      'SELECT default_show_logo, default_show_status, default_pdf_theme FROM business_profiles WHERE id = $1',
+      [template.business_profile_id]
+    );
+    const profileDefaults = profileRows.length > 0 ? profileRows[0] : {};
+    const showLogoPublic = body.showLogoPublic ?? profileDefaults.default_show_logo ?? false;
+    const showStatusPublic = body.showStatusPublic ?? profileDefaults.default_show_status ?? false;
+    const pdfTheme = body.pdfTheme ?? profileDefaults.default_pdf_theme ?? 'clean';
+
     const result = await query(
       `INSERT INTO invoices (
         id, user_id, business_profile_id, client_id, invoice_number,
         issue_date, due_date, status, subtotal, tax_rate, tax_amount,
         discount_rate, discount_amount, total, notes, terms, currency,
-        is_recurring, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) RETURNING *`,
+        is_recurring, created_at, updated_at,
+        show_logo_public, show_status_public, pdf_theme
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23) RETURNING *`,
       [
         invoiceId,
         userId,
@@ -280,7 +305,10 @@ async function createInvoiceFromTemplate(body: any) {
         template.currency || 'USD',
         false, // is_recurring
         now,
-        now
+        now,
+        showLogoPublic,
+        showStatusPublic,
+        pdfTheme
       ]
     );
 
