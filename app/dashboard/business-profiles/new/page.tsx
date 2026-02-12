@@ -19,12 +19,15 @@ export default function NewBusinessProfile() {
     postalCode: '',
     country: '',
     taxId: '',
-    logoUrl: ''
+    logoUrl: '',
+    defaultShowLogo: false,
+    defaultShowStatus: false,
+    defaultPdfTheme: 'clean',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -234,6 +237,50 @@ export default function NewBusinessProfile() {
               onChange={handleChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
+          </div>
+
+          {/* Public Invoice Defaults */}
+          <div className="col-span-2 border-t border-gray-200 pt-4 mt-2">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Public Invoice Defaults</h3>
+            <p className="text-xs text-gray-500 mb-3">These defaults apply to new invoices created with this profile.</p>
+
+            <div className="space-y-2 mb-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.defaultShowLogo}
+                  onChange={(e) => setFormData(prev => ({ ...prev, defaultShowLogo: e.target.checked }))}
+                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-700">Show logo on public invoices by default</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.defaultShowStatus}
+                  onChange={(e) => setFormData(prev => ({ ...prev, defaultShowStatus: e.target.checked }))}
+                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm text-gray-700">Show status on public invoices by default</span>
+              </label>
+            </div>
+
+            <div>
+              <label htmlFor="defaultPdfTheme" className="block text-sm font-medium text-gray-700 mb-1">
+                Default PDF Theme
+              </label>
+              <select
+                id="defaultPdfTheme"
+                value={formData.defaultPdfTheme}
+                onChange={(e) => setFormData(prev => ({ ...prev, defaultPdfTheme: e.target.value }))}
+                className="block w-full sm:w-1/3 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="clean">Clean (Default)</option>
+                <option value="classic">Classic</option>
+                <option value="bold">Bold</option>
+                <option value="compact">Compact</option>
+              </select>
+            </div>
           </div>
         </div>
 
