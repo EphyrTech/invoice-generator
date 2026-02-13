@@ -44,6 +44,9 @@ CREATE TABLE IF NOT EXISTS business_profiles (
   country TEXT,
   tax_id TEXT,
   logo_url TEXT,
+  default_show_logo BOOLEAN DEFAULT FALSE,
+  default_show_status BOOLEAN DEFAULT FALSE,
+  default_pdf_theme TEXT DEFAULT 'clean',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -90,6 +93,10 @@ CREATE TABLE IF NOT EXISTS invoices (
   is_recurring BOOLEAN DEFAULT FALSE,
   recurring_interval TEXT,
   recurring_end_date TEXT,
+  public_token TEXT UNIQUE,
+  show_logo_public BOOLEAN DEFAULT FALSE,
+  show_status_public BOOLEAN DEFAULT FALSE,
+  pdf_theme TEXT DEFAULT 'clean',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -157,5 +164,18 @@ INSERT INTO clients (id, user_id, name, email, phone, address, city, state, post
 SELECT 'client-1', 'user-1', 'Sample Client', 'client@example.com', '+1 (555) 987-6543', '456 Client Ave', 'Client City', 'Client State', '67890', 'USA', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 WHERE NOT EXISTS (SELECT 1 FROM clients WHERE id = 'client-1');
 
+-- Migrations: add columns that may be missing on existing databases
+-- These use IF NOT EXISTS so they are safe to run repeatedly
+
+-- Migration 0001: public sharing columns
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS public_token TEXT UNIQUE;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS show_logo_public BOOLEAN DEFAULT FALSE;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS show_status_public BOOLEAN DEFAULT FALSE;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS pdf_theme TEXT DEFAULT 'clean';
+
+ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS default_show_logo BOOLEAN DEFAULT FALSE;
+ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS default_show_status BOOLEAN DEFAULT FALSE;
+ALTER TABLE business_profiles ADD COLUMN IF NOT EXISTS default_pdf_theme TEXT DEFAULT 'clean';
+
 -- Log successful initialization
-SELECT 'Database tables created successfully' as status;
+SELECT 'Database tables created/updated successfully' as status;

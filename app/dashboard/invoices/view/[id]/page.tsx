@@ -67,12 +67,29 @@ type Invoice = {
   client?: Client;
 };
 
+function copyToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  // Fallback for insecure contexts (HTTP)
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+  return Promise.resolve();
+}
+
 export default function ViewInvoice({ params }: { params: { id: string } }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [publicToken, setPublicToken] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
 
   useEffect(() => {
@@ -242,10 +259,16 @@ export default function ViewInvoice({ params }: { params: { id: string } }) {
           </InvoiceDownloadLink>
           {publicToken && (
             <button
-              onClick={() => navigator.clipboard.writeText(`${window.location.origin}/i/${publicToken}`)}
+              onClick={() => {
+                copyToClipboard(`${window.location.origin}/i/${publicToken}`)
+                  .then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+              }}
               className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded"
             >
-              Copy Public Link
+              {copied ? 'Copied!' : 'Copy Public Link'}
             </button>
           )}
         </div>

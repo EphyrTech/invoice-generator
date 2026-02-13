@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS business_profiles (
   country TEXT,
   tax_id TEXT,
   logo_url TEXT,
+  default_show_logo BOOLEAN DEFAULT FALSE,
+  default_show_status BOOLEAN DEFAULT FALSE,
+  default_pdf_theme TEXT DEFAULT 'clean',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,6 +87,10 @@ CREATE TABLE IF NOT EXISTS invoices (
   is_recurring BOOLEAN DEFAULT FALSE,
   recurring_interval TEXT,
   next_issue_date TEXT,
+  public_token TEXT UNIQUE,
+  show_logo_public BOOLEAN DEFAULT FALSE,
+  show_status_public BOOLEAN DEFAULT FALSE,
+  pdf_theme TEXT DEFAULT 'clean',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
